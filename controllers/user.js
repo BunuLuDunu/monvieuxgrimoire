@@ -1,6 +1,9 @@
 // Importation du package bcrypt
 const bcrypt = require('bcrypt');
 
+// Importation du package JsonWebToken
+const jwt = require('jsonwebtoken');
+
 // Importation du model user
 const User = require('../models/User');
 
@@ -35,7 +38,11 @@ exports.login = (req, res, next) => {
                 } else {
                     res.status(200).json({
                         userId: user._id,
-                        token: 'TOKEN'
+                        token: jwt.sign(
+                            { userId: user._id },
+                            'RANDOM_TOKEN_SECRET',
+                            { expiresIn: '24h' }
+                        )
                     });
                 }
             })
