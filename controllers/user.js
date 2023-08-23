@@ -21,5 +21,26 @@ exports.signup = (req, res, next) => {
 
 // Fonction pour connecter les utilisateurs existants
 exports.login = (req, res, next) => {
-
+    User.findOne({ email: req.body.email })
+    .then(user => {
+        // Vérification si l'utilisateur a été trouvé
+        if (user === null) {
+            res.status(401).json({ message: 'Paire identifiant/mot de passe incorrect'});
+        } else {
+            // Si l'utilisateur a été trouvé, on compare le mot de passe de la base de donnée avec le mot de passe transmis
+            bcrypt.compare(req.body.password, user.password)
+            .then(valid => {
+                if (!valid) {
+                    res.status(401).json({ message: 'Paire identifiant/mot de passe incorrect'});
+                } else {
+                    res.status(200).json({
+                        userId: user._id,
+                        token: 'TOKEN'
+                    });
+                }
+            })
+            .catch(error => res.status(500).json({ error }));
+        }
+    })
+    .catch(error => res.status(500).json({ error }));
 };
