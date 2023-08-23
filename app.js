@@ -4,7 +4,8 @@ const app = express();
 app.use(express.json());
 
 // Importation du router
-const booksRoutes = require('./routes/books.js');
+const booksRoutes = require('./routes/books');
+const userRoutes = require('./routes/user');
 
 // Ajout de Mongoose et connection à MongoDB
 const mongoose = require('mongoose');
@@ -23,6 +24,8 @@ app.use((req, res, next) => {
     next();
   });
 
+// Enregistrement des routes
 app.use('/api/books', booksRoutes);
+app.use('/api/auth', userRoutes);
 
 module.exports = app;

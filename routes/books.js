@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 
 // Importation du controller de création de livre
-const booksCtrl = require('../controllers/books.js');
+const booksCtrl = require('../controllers/books');
 
 
 // 
@@ -23,4 +23,6 @@ router.get('/:id', booksCtrl.getOneBook);
 // Route pour récupérer tous les livres
 router.get('/', booksCtrl.getAllBooks);
 
+
+// Exportation du router
 module.exports = router;
