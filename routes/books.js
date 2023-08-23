@@ -4,6 +4,9 @@ const express = require('express');
 // Création du router
 const router = express.Router();
 
+// Importation du middleware
+const auth = require('../middleware/auth');
+
 // Importation du controller de création de livre
 const booksCtrl = require('../controllers/books');
 
@@ -13,15 +16,15 @@ const booksCtrl = require('../controllers/books');
 // 
 
 // Route pour créer un nouveau livre
-router.post('/', booksCtrl.createBook);
+router.post('/', auth, booksCtrl.createBook);
 // Route pour la modification d'un livre
-router.put('/:id', booksCtrl.modifyBook);
+router.put('/:id', auth, booksCtrl.modifyBook);
 // Route pour supprimer un livre
-router.delete('/:id', booksCtrl.deleteBook);
+router.delete('/:id', auth, booksCtrl.deleteBook);
 // Route pour récupérer un livre unique
-router.get('/:id', booksCtrl.getOneBook);
+router.get('/:id', auth, booksCtrl.getOneBook);
 // Route pour récupérer tous les livres
-router.get('/', booksCtrl.getAllBooks);
+router.get('/', auth, booksCtrl.getAllBooks);
 
 
 // Exportation du router
