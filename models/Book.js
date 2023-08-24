@@ -1,5 +1,7 @@
+// Importation de mongoose
 const mongoose = require('mongoose');
 
+// Création du modèle de livre
 const bookSchema = mongoose.Schema({
     userId: { type: String, required: true },
     title: { type: String, required: true },
