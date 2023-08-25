@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express();
 app.use(express.json());
+const path = require('path');
 
 // Importation du router
 const booksRoutes = require('./routes/books');
@@ -27,5 +28,6 @@ app.use((req, res, next) => {
 // Enregistrement des routes
 app.use('/api/books', booksRoutes);
 app.use('/api/auth', userRoutes);
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;
