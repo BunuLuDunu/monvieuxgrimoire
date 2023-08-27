@@ -15,7 +15,7 @@ const processedImage = async (req, res, next) => {
             .resize({
                 width: 463,
                 height: 595,
-                fit: 'cover'
+                fit: sharp.fit.cover
             })
             // Changement de format en webp pour l'optimisation
             .webp({ quality: 80 })

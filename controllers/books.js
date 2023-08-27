@@ -11,12 +11,13 @@ exports.createBook = (req, res, next) => {
   delete bookObject._id;
   // Supprimer le champ userId pour que le client ne passe pas le userId d'une autre personne
   delete bookObject._userId;
+  const imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}optimized.webp`;
   const book = new Book({
     ...bookObject,
     // Remplacer le userId extrait du token par le middleware d'authentification en base de données
     userId: req.auth.userId,
     // Résolution de l'url complète de l'image optimisée
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}optimized.webp`,
+    imageUrl: imageUrl,
     averageRating: bookObject.ratings[0].grade
   });
   book.save()

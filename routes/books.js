@@ -13,13 +13,16 @@ const multer = require('../middleware/multerConfig');
 // Importation du controller de création de livre
 const booksCtrl = require('../controllers/books');
 
+// Importation des images optimisées
+const processedImage = require('../middleware/imageProcessor');
+
 
 // 
 // ROUTES
 // 
 
 // Route pour créer un nouveau livre
-router.post('/', auth, multer, booksCtrl.createBook);
+router.post('/', auth, multer, processedImage, booksCtrl.createBook);
 
 // Route pour récupérer tous les livres
 router.get('/', booksCtrl.getAllBooks);
@@ -31,7 +34,7 @@ router.get('/bestrating', booksCtrl.getBestRating);
 router.get('/:id', booksCtrl.getOneBook);
 
 // Route pour la modification d'un livre
-router.put('/:id', auth, multer, booksCtrl.modifyBook);
+router.put('/:id', auth, multer, processedImage, booksCtrl.modifyBook);
 
 // Route pour supprimer un livre
 router.delete('/:id', auth, booksCtrl.deleteBook);
