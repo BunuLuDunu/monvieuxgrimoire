@@ -15,8 +15,8 @@ exports.createBook = (req, res, next) => {
     ...bookObject,
     // Remplacer le userId extrait du token par le middleware d'authentification en base de données
     userId: req.auth.userId,
-    // Résolution de l'url complète de l'image
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+    // Résolution de l'url complète de l'image optimisée
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}optimized.webp`,
     averageRating: bookObject.ratings[0].grade
   });
   book.save()
@@ -36,11 +36,13 @@ exports.modifyBook = (req, res, next) => {
     .then((book) => {
       if (book.userId != req.auth.userId) {
         res.status(401).json({ message: 'Non-autorisé' });
-      } else {
-        Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
-          .then(() => res.status(200).json({ message: 'Livre modifié' }))
-          .catch(error => res.status(401).json({ error }));
+      } else if (req.file) {
+        const filename = book.imageUrl.split('/images')[1];
+        fs.unlink(`images/${filename}`, () => { });     
       }
+      Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
+        .then(() => res.status(200).json({ message: 'Livre modifié' }))
+        .catch(error => res.status(401).json({ error }));
     })
     .catch(error => res.status(400).json({ error }));
 };
@@ -105,7 +107,7 @@ exports.addRating = (req, res, next) => {
         return parseFloat(average.toFixed(2));
       };
       const updatedAverageRating = calcAverageRating(updatedRatings);
-      
+
       Book.findOneAndUpdate(
         { id: req.params.id, 'ratings.userId': { $ne: user } },
         { $push: { ratings: newRating }, averageRating: updatedAverageRating },
