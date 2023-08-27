@@ -81,28 +81,44 @@ exports.getAllBooks = (req, res, next) => {
 
 // Controller pour ajouter une note
 exports.addRating = (req, res, next) => {
+  const user = req.body.userId;
   Book.findOne({_id: req.params.id})
     .then(book => {
       // Vérification que l'utilisateur n'a pas déjà noté le livre
-      if (book.ratings.find(rating => rating.userId === req.auth.userId)) {
+      if (book.ratings.find(rating => rating.userId === user)) {
         res.status(401).json({ message: 'Note déjà attribuée' })
       } else {
         const newRating = {
-          userId: req.auth.userId,
-          grade: req.body.rating
+          userId: user,
+          grade: req.body.rating,
+          _id: req.body._id
         };
-        book.ratings.push(newRating);
-      }
+        const updatedRatings = [
+          ...book.ratings,
+          newRating
+        ];
+
       // Calcul de la note moyenne d'un livre
-        const sumRatings = ratings.reduce((acc, curr) => acc + curr.grade, 0);
-        book.averageRating = sumRatings / ratings.length;
-        book.save()
-          .then(() => res.status(200).json(book))
-          .catch(error => res.status(500).json({ error }));
-    })
+      function calcAverageRating(ratings) {
+        const sumRatings = ratings.reduce((sum, rating) => sum + rating.grade, 0);
+        const average = sumRatings / ratings.length;
+        return parseFloat(average.toFixed(2));
+      };
+      const updatedAverageRating = calcAverageRating(updatedRatings);
+      
+      Book.findOneAndUpdate(
+        { id: req.params.id, 'ratings.userId': { $ne: user } },
+        { $push: { ratings: newRating }, averageRating: updatedAverageRating },
+        { new: true }
+      )
+        .then(updatedBook => res.status(201).json(updatedBook))
+        .catch(error => res.status(401).json({ error }));
+    };
+  })
+    .catch(error => res.status(401).json({ error }));
 };
 
-// Controller pour les livres les mieux notés
+// Controller pour récupérer les livres les mieux notés
 exports.getBestRating = (req, res, next) => {
   Book.find().sort({ averageRating: -1 }).limit(3)
     .then(books => res.status(200).json(books))
