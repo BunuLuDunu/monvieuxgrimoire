@@ -84,41 +84,22 @@ exports.getAllBooks = (req, res, next) => {
 
 // Controller pour ajouter une note
 exports.addRating = (req, res, next) => {
-  const user = req.body.userId;
-  Book.findOne({_id: req.params.id})
-    .then(book => {
-      // Vérification que l'utilisateur n'a pas déjà noté le livre
-      if (book.ratings.find(rating => rating.userId === user)) {
-        res.status(401).json({ message: 'Note déjà attribuée' })
-      } else {
-        const newRating = {
-          userId: user,
-          grade: req.body.rating,
-          _id: req.body._id
-        };
-        const updatedRatings = [
-          ...book.ratings,
-          newRating
-        ];
-
-      // Calcul de la note moyenne d'un livre
-      function calcAverageRating(ratings) {
-        const sumRatings = ratings.reduce((sum, rating) => sum + rating.grade, 0);
-        const average = sumRatings / ratings.length;
-        return parseFloat(average.toFixed(2));
-      };
-      const updatedAverageRating = calcAverageRating(updatedRatings);
-
-      Book.findOneAndUpdate(
-        { id: req.params.id, 'ratings.userId': { $ne: user } },
-        { $push: { ratings: newRating }, averageRating: updatedAverageRating },
-        { new: true }
-      )
-        .then(updatedBook => res.status(201).json(updatedBook))
-        .catch(error => res.status(401).json({ error }));
+  Book.findOne({ _id: req.params.id })
+  .then(book => {
+    book.ratings.push({
+      userId: req.auth.userId,
+      grade: req.body.rating
+    })
+    let totalRating = 0;
+    for (i=0; i < book.ratings.length; i++) {
+      let currentRating = book.ratings[i].grade
+      totalRating = totalRating + currentRating
     };
+    book.averageRating = totalRating / book.ratings.length;
+    return book.save()
   })
-    .catch(error => res.status(401).json({ error }));
+    .then(book => res.status(201).json(book))
+    .catch(error => res.status(500).json({ error }))
 };
 
 // Controller pour récupérer les livres les mieux notés
