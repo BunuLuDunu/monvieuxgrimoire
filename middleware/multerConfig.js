@@ -12,13 +12,13 @@ const MIME_TYPES = {
 // Création d'un objet de configuration
 const storage = multer.diskStorage({
     destination: (req, file, callback) => {
-        callback(null, 'images')
+        callback(null, 'images');
     },
     filename: (req, file, callback) => {
         // Elimination des espaces dans les noms de fichiers originaux
         const name = file.originalname.split(' ').join('_');
         const extension = MIME_TYPES[file.mimetype];
-        callback(null, name + Date.now() + '.' + extension);
+        callback(null, name.split('.')[0] + Date.now() + '.' + extension);
     }
 });
 

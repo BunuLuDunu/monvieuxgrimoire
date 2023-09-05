@@ -11,25 +11,24 @@ exports.createBook = (req, res, next) => {
   delete bookObject._id;
   // Supprimer le champ userId pour que le client ne passe pas le userId d'une autre personne
   delete bookObject._userId;
-  const imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}optimized.webp`;
   const book = new Book({
     ...bookObject,
     // Remplacer le userId extrait du token par le middleware d'authentification en base de données
     userId: req.auth.userId,
     // Résolution de l'url complète de l'image optimisée
-    imageUrl: imageUrl,
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}optimized.webp`,
     averageRating: bookObject.ratings[0].grade
   });
   book.save()
     .then(() => { res.status(201).json({ message: 'Livre enregistré' })})
-    .catch(error => {res.statuts(400).json({ error })});
+    .catch(error => {res.status(400).json({ error })});
 };
 
 // Controller pour modifier un livre
 exports.modifyBook = (req, res, next) => {
   const bookObject = req.file ? {
     ...JSON.parse(req.body.book),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}optimized.webp`
   } : { ...req.body };
   // Supprimer le champ userId pour que le client ne passe pas le userId d'une autre personne
   delete bookObject._userId;
